@@ -57,16 +57,17 @@ public final class Authentication {
   
   private let kDefaultPicture     = "person.fill"
 
-  
   @AppStorage("token") var refreshToken: String?
-  
   
   // ----------------------------------------------------------------------------
   // MARK: - Initialization
   
   init() {
-    let appName = (Bundle.main.infoDictionary!["CFBundleName"] as! String)
+//    let appName = (Bundle.main.infoDictionary!["CFBundleName"] as! String)
 //    _secureStore = SecureStore(service: appName + kServiceName)
+    
+//    _previousIdToken = nil
+//    refreshToken = nil
   }
   
   // ----------------------------------------------------------------------------
@@ -76,7 +77,7 @@ public final class Authentication {
     _previousIdToken = nil
     // delete the saved refresh token from the Keychain
 //    _ = _secureStore.delete(account: _smartlinkEmail)
-    self.refreshToken = nil
+    refreshToken = nil
   }
     
   func authenticate(_ smartlinkEmail: String) async -> IdToken? {
@@ -115,32 +116,38 @@ public final class Authentication {
   ///   - user:       User name
   ///   - pwd:        User password
   /// - Returns:      an Id Token (if any)
-  func requestTokens(user: String, pwd: String) -> IdToken? {
+  func requestTokens(user: String, pwd: String) async -> IdToken? {
     // build the request
     var request = URLRequest(url: URL(string: kAuth0Authenticate)!)
     request.httpMethod = kHttpPost
     request.addValue(kApplicationJson, forHTTPHeaderField: kHttpHeaderField)
     
     // add the body data & perform the request
-    if let data = createTokensBodyData(user: user, pwd: pwd) {
+    if let data = createTokensBodyData(user: "douglas.adams@me.com", pwd: "fleX!20Comm") {
       request.httpBody = data
-
-      Task { [request] in
-        let result = try! await performRequest(request, for: [kKeyIdToken, kKeyRefreshToken])
+      
+      let result = try! await performRequest(request, for: [kKeyIdToken, kKeyRefreshToken])
+      
+      print("Count = \(result.count)")
+      print("IsValid = \(isValid(result[0]))")
+      print("refreshToken = \(result[1] ?? "nil")")
+      
+      // validate the Id Token
+      if result.count == 2 && isValid(result[0]), let refreshToken = result[1] {
+        // save the email & picture
+        updateClaims(from: result[0])
+        // save the Refresh Token
+        self.refreshToken = refreshToken
+        //          _ = _secureStore.set(account: user, data: refreshToken)
+        // save Id Token
+        _previousIdToken = result[0]
         
-        // validate the Id Token
-        if result.count == 2 && isValid(result[0]), let refreshToken = result[1] {
-          // save the email & picture
-          updateClaims(from: result[0])
-          // save the Refresh Token
-          self.refreshToken = refreshToken
-//          _ = _secureStore.set(account: user, data: refreshToken)
-          // save Id Token
-          _previousIdToken = result[0]
-          return result[0]
-        }
-        return nil
+        print("self.refreshToken = \(self.refreshToken ?? "nil")")
+        print("_previousIdToken = \(_previousIdToken ?? "nil")")
+        
+        return result[0]
       }
+      return nil
     }
     // invalid Id Token or request failure
     return nil

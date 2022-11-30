@@ -86,7 +86,15 @@ public final class WanListener: NSObject, ObservableObject {
   // ------------------------------------------------------------------------------
   // MARK: - Internal methods
     
-  func start(_ smartlinkEmail: String) async -> Bool {
+//  func forceLogin() {
+//    _authentication.forceLogin()
+//  }
+  
+  func start(_ smartlinkEmail: String, _ forceLogin: Bool = false) async -> Bool {
+    if forceLogin {
+      _authentication.forceLogin()
+      return false
+    }
     if let idToken = await _authentication.authenticate(smartlinkEmail) {
       return start(using: idToken)
     }
@@ -97,11 +105,15 @@ public final class WanListener: NSObject, ObservableObject {
   /// - Parameters:
   ///   - user:           user value
   ///   - pwd:            user password
-  func start(user: String, pwd: String) -> Bool {
-    if let idToken = _authentication.requestTokens(user: user, pwd: pwd) {
+  func start(user: String, pwd: String) async -> Bool {
+    let idToken = await _authentication.requestTokens(user: user, pwd: pwd)
+    
+    print("Start: idToken = \(idToken ?? "nil")")
+    
+    if idToken != nil {
       _previousIdToken = idToken
       log("Wan Listener: IdToken obtained from login credentials", .debug, #function, #file, #line)
-      if start(using: idToken) { return true }
+      if start(using: idToken!) { return true }
     }
     return false
   }

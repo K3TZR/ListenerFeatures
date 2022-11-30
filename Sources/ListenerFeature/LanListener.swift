@@ -11,7 +11,6 @@ import CocoaAsyncSocket
 import Combine
 
 import Shared
-import Vita
 
 public enum LanListenerError: Error {
   case kSocketError
@@ -61,7 +60,7 @@ public final class LanListener: NSObject, ObservableObject {
     Timer.publish(every: checkInterval, on: .main, in: .default)
       .autoconnect()
       .sink { now in
-        PacketCollection.shared.removePackets(condition: { $0.source == .local && abs($0.lastSeen.timeIntervalSince(now)) > timeout } )
+        Listener.shared.removePackets(condition: { $0.source == .local && abs($0.lastSeen.timeIntervalSince(now)) > timeout } )
       }
       .store(in: &_cancellables)
   }
@@ -115,6 +114,6 @@ extension LanListener: GCDAsyncUdpSocketDelegate {
     guard let packet = parseVita(vita) else { return }
     
     // YES, process it
-    PacketCollection.shared.processPacket(packet)
+    Listener.shared.processPacket(packet)
   }
 }
