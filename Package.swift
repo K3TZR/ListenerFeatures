@@ -17,7 +17,7 @@ let package = Package(
 
   dependencies: [
     .package(url: "https://github.com/auth0/JWTDecode.swift", from: "2.6.0"),
-    .package(url: "https://github.com/K3TZR/SharedFeatures.git", from: "1.2.1"),
+    .package(url: "https://github.com/K3TZR/SharedFeatures.git", from: "1.3.1"),
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "0.42.0"),
     .package(url: "https://github.com/robbiehanson/CocoaAsyncSocket", from: "7.6.5"),
   ],

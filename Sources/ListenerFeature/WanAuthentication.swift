@@ -123,7 +123,7 @@ public final class Authentication {
     request.addValue(kApplicationJson, forHTTPHeaderField: kHttpHeaderField)
     
     // add the body data & perform the request
-    if let data = createTokensBodyData(user: "douglas.adams@me.com", pwd: "fleX!20Comm") {
+    if let data = createTokensBodyData(user: user, pwd: pwd) {
       request.httpBody = data
       
       let result = try! await performRequest(request, for: [kKeyIdToken, kKeyRefreshToken])

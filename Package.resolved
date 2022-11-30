@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/K3TZR/SharedFeatures.git",
       "state" : {
-        "revision" : "29f8e824e54e670699f65ba064f2e9450803bd15",
-        "version" : "1.2.1"
+        "revision" : "dfa853060c4c8da6652d56a194046275f2b8e67b",
+        "version" : "1.3.1"
       }
     },
     {
